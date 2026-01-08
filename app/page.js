@@ -2,43 +2,20 @@
 import React, { useEffect, useState } from "react";
 import { Github, Linkedin, Moon, Sun, ArrowRight, Menu, X } from "lucide-react";
 import { motion } from "framer-motion";
-import Link from "next/link";
 
 export default function KeebLab() {
   const [theme, setTheme] = useState("dark");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [uiTheme, setUiTheme] = useState("paper");
-  const [view, setView] = useState("landing");
 
   useEffect(() => {
-    const saved = localStorage.getItem("theme");
-    if (saved === "dark" || saved === "light") {
-      setTheme(saved);
-    } else {
-      const prefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      ).matches;
-      setTheme(prefersDark ? "dark" : "light");
-    }
-
-    const savedUi = localStorage.getItem("uiTheme");
-    if (savedUi === "modern" || savedUi === "paper") {
-      setUiTheme(savedUi);
-    }
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    setTheme(prefersDark ? "dark" : "light");
   }, []);
 
-  // Apply theme class and persist preference
+  // Apply theme class
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
-    localStorage.setItem("theme", theme);
   }, [theme]);
-
-  // Apply UI theme class (theme-modern or theme-paper)
-  useEffect(() => {
-    document.documentElement.classList.remove("theme-modern", "theme-paper");
-    document.documentElement.classList.add(`theme-${uiTheme}`);
-    localStorage.setItem("uiTheme", uiTheme);
-  }, [uiTheme]);
 
   // Close mobile menu on Escape
   useEffect(() => {
@@ -51,13 +28,32 @@ export default function KeebLab() {
 
   const isDark = theme === "dark";
 
+  // Apply CSS variables from provided stylesheet
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isDark) {
+      root.style.setProperty('--color-bg', '#071023');
+      root.style.setProperty('--color-surface', '#0A0C10');
+      root.style.setProperty('--color-text', '#F8FAFF');
+      root.style.setProperty('--color-muted', '#9fb2c8');
+    } else {
+      root.style.setProperty('--color-bg', '#FBF9F7');
+      root.style.setProperty('--color-surface', '#FFFFFF');
+      root.style.setProperty('--color-text', '#0F172A');
+      root.style.setProperty('--color-muted', '#6b7280');
+    }
+  }, [isDark]);
+
   return (
     <div
-      className={`min-h-screen w-full overflow-x-hidden transition-colors duration-500 ${
-        isDark
-          ? "bg-[#0A0C10] text-white"
-          : "bg-gradient-to-br from-[#F8FAFC] to-[#EEF2F7] text-[#0F172A]"
-      }`}
+      className="min-h-screen w-full overflow-x-hidden transition-colors duration-500"
+      style={{
+        backgroundColor: 'var(--color-bg)',
+        color: 'var(--color-text)',
+        backgroundImage: isDark ? 'none' : 'linear-gradient(rgba(0,0,0,0.015) 1px, transparent 1px)',
+        backgroundSize: '100% 56px',
+        fontFamily: "'Inter', system-ui, -apple-system, sans-serif"
+      }}
     >
       <a
         href="#main"
@@ -65,36 +61,45 @@ export default function KeebLab() {
       >
         Skip to main content
       </a>
+      
       {/* NAVBAR */}
       <header
-        className={`fixed top-0 inset-x-0 z-50 backdrop-blur-xl transition-colors duration-500 border-b ${
-          isDark
-            ? "bg-[#0A0C10]/70 border-white/10"
-            : "bg-white/70 border-black/10"
-        }`}
+        className="fixed top-0 inset-x-0 z-50 backdrop-blur-xl transition-colors duration-500 border-b"
+        style={{
+          backgroundColor: isDark ? 'rgba(10, 12, 16, 0.7)' : 'rgba(255, 255, 255, 0.7)',
+          borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+        }}
       >
-        <div className="container h-16 flex items-center justify-between relative">
+        <div className="container mx-auto h-16 flex items-center justify-between relative px-6">
           <a
             href="/"
             aria-label="KeebLab Home"
-            className={`inline-flex items-center px-4 py-2 rounded-full font-extrabold text-lg md:text-xl tracking-tight focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 transition shadow-sm hover:shadow-md ${
-              isDark
-                ? "bg-white/10 text-white hover:bg-white/16"
-                : "bg-primary-50 text-primary-600 hover:bg-primary-100"
-            }`}
+            className="inline-flex items-center px-4 py-2 rounded-full font-extrabold text-lg md:text-xl tracking-tight focus:outline-none focus-visible:ring-2 transition shadow-sm hover:shadow-md"
+            style={{
+              backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : '#EEF2FF',
+              color: isDark ? '#F8FAFF' : '#3b6ef6'
+            }}
           >
             KeebLab
           </a>
 
           <nav className="flex items-center gap-4">
             <div className="hidden md:flex items-center gap-6">
-              <a href="#" className="nav-link">
+              <a href="#" className="nav-link" style={{ color: 'var(--color-muted)' }}>
                 Home
               </a>
-              <a href="#about" className="nav-link">
+              <a href="#about" className="nav-link" style={{ color: 'var(--color-muted)' }}>
                 About
               </a>
-              <a href="#" className="hidden md:inline-flex btn btn-primary">
+              <a 
+                href="#" 
+                className="hidden md:inline-flex items-center gap-2 rounded-xl px-4 py-2 font-semibold transition-shadow"
+                style={{
+                  backgroundColor: '#3b6ef6',
+                  color: 'white',
+                  borderRadius: '10px'
+                }}
+              >
                 Sign up
               </a>
             </div>
@@ -105,7 +110,7 @@ export default function KeebLab() {
                 aria-expanded={menuOpen}
                 aria-controls="mobile-menu"
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="md:hidden p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 transition"
+                className="md:hidden p-2 rounded-md focus:outline-none focus-visible:ring-2 transition"
               >
                 {menuOpen ? <X size={20} /> : <Menu size={20} />}
               </motion.button>
@@ -114,11 +119,11 @@ export default function KeebLab() {
                 whileTap={{ scale: 0.92 }}
                 aria-label="Toggle theme"
                 onClick={() => setTheme(isDark ? "light" : "dark")}
-                className={`p-2 rounded-full bg-transparent transform transition-all duration-300 hover:scale-105 ${
-                  isDark
-                    ? "text-yellow-400 hover:bg-white/10"
-                    : "text-slate-700 hover:bg-black/5"
-                }`}
+                className="p-2 rounded-full transform transition-all duration-300 hover:scale-105"
+                style={{
+                  color: isDark ? '#fbbf24' : '#334155',
+                  backgroundColor: 'transparent'
+                }}
               >
                 <motion.span
                   key={isDark ? "sun" : "moon"}
@@ -139,27 +144,32 @@ export default function KeebLab() {
           id="mobile-menu"
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          className={`md:hidden absolute top-16 left-0 right-0 z-40 ${
-            isDark
-              ? "bg-black/70 border-b border-white/5"
-              : "bg-white/90 border-b border-black/5"
-          } backdrop-blur-lg shadow-lg`}
+          className="md:hidden absolute top-16 left-0 right-0 z-40 backdrop-blur-lg shadow-lg"
+          style={{
+            backgroundColor: isDark ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.9)',
+            borderBottom: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'}`
+          }}
         >
           <div className="px-6 py-4 flex flex-col gap-3">
-            <a href="#" onClick={() => setMenuOpen(false)} className="nav-link">
+            <a href="#" onClick={() => setMenuOpen(false)} className="nav-link" style={{ color: 'var(--color-muted)' }}>
               Home
             </a>
             <a
               href="#about"
               onClick={() => setMenuOpen(false)}
               className="nav-link"
+              style={{ color: 'var(--color-muted)' }}
             >
               About
             </a>
             <a
               href="#"
               onClick={() => setMenuOpen(false)}
-              className="btn btn-primary w-full text-center"
+              className="w-full text-center rounded-xl px-4 py-2 font-semibold"
+              style={{
+                backgroundColor: '#3b6ef6',
+                color: 'white'
+              }}
             >
               Sign up
             </a>
@@ -168,7 +178,7 @@ export default function KeebLab() {
       )}
 
       {/* HERO */}
-      <section className="relative pt-28 md:pt-40 pb-20 md:pb-36 overflow-hidden">
+      <section id="main" className="relative pt-28 md:pt-40 pb-20 md:pb-36 overflow-hidden">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -185,51 +195,57 @@ export default function KeebLab() {
           transition={{ duration: 0.8 }}
           className="max-w-5xl mx-auto px-6 text-center"
         >
-          <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight leading-tight">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight leading-tight" style={{ fontFamily: "'Inter', system-ui, sans-serif", letterSpacing: '-0.02em' }}>
             <span
-              className={`block ${
-                isDark ? "text-slate-100" : "text-[#0F172A]"
-              }`}
+              style={{ color: 'var(--color-text)' }}
             >
               A better way to
             </span>
 
             <span
-              className={`block mt-1 bg-clip-text text-transparent ${
-                isDark
-                  ? "bg-gradient-to-r from-primary-400 to-cyan-400"
-                  : "bg-gradient-to-r from-primary-500 to-cyan-500"
-              }`}
+              className="block mt-1 bg-clip-text text-transparent"
+              style={{
+                backgroundImage: isDark
+                  ? 'linear-gradient(to right, #5b8cff, #06b6d4)'
+                  : 'linear-gradient(to right, #3b6ef6, #0891b2)'
+              }}
             >
               feel your typing
             </span>
           </h1>
 
           <p
-            className={`mt-6 text-base md:text-lg max-w-3xl mx-auto leading-relaxed ${
-              isDark ? "text-gray-400" : "text-slate-600"
-            }`}
+            className="mt-6 text-base md:text-lg max-w-3xl mx-auto leading-relaxed"
+            style={{ 
+              color: 'var(--color-muted)',
+              lineHeight: '1.7'
+            }}
           >
             KeebLab blends mechanical keyboard obsession with precision typing
             practice — built for speed, accuracy, and pure satisfaction.
           </p>
+          
           <div className="mt-12 flex flex-col sm:flex-row justify-center gap-4 flex-wrap">
-            <Link href={"/type"}>
             <motion.button  
               whileHover={{ scale: 1.03 }}
-              className="btn btn-primary px-10 py-4 rounded-xl flex items-center gap-3 w-full sm:w-auto justify-center"
+              className="inline-flex items-center gap-3 w-full sm:w-auto justify-center rounded-xl px-10 py-4 font-semibold transition-all"
+              style={{
+                backgroundColor: '#3b6ef6',
+                color: 'white',
+                boxShadow: '0 6px 24px rgba(59, 110, 246, 0.15)'
+              }}
               aria-label="Start Typing"
-              onClick={() => setView("test")}
             >
               Start Typing <ArrowRight size={18} />
-            </motion.button></Link>
+            </motion.button>
             <motion.button
               whileHover={{ scale: 1.02 }}
-              className={`btn btn-ghost px-8 py-4 rounded-xl font-semibold w-full sm:w-auto transition ${
-                isDark
-                  ? "border-white/20 hover:bg-white/10"
-                  : "border-black/20 hover:bg-black/5"
-              }`}
+              className="inline-flex items-center gap-2 w-full sm:w-auto justify-center rounded-xl px-8 py-4 font-semibold transition-all"
+              style={{
+                backgroundColor: 'transparent',
+                border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(15, 23, 42, 0.06)'}`,
+                color: 'var(--color-text)'
+              }}
             >
               Learn More
             </motion.button>
@@ -247,21 +263,30 @@ export default function KeebLab() {
           className="max-w-6xl mx-auto px-6"
         >
           <div
-            className={`rounded-3xl p-14 md:p-20 border backdrop-blur-xl ${
-              isDark ? "bg-white/5 border-white/10" : "bg-white border-black/10"
-            }`}
+            className="rounded-3xl p-14 md:p-20 border backdrop-blur-xl"
+            style={{
+              backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : '#FFFFFF',
+              borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+              boxShadow: '0 6px 24px rgba(16, 24, 40, 0.04)',
+              borderRadius: '14px'
+            }}
           >
             <h2
-              className={`text-3xl md:text-4xl font-bold mb-6 ${
-                isDark ? "text-white" : "text-slate-900"
-              }`}
+              className="text-3xl md:text-4xl font-bold mb-6"
+              style={{ 
+                color: 'var(--color-text)',
+                fontFamily: "'Inter', system-ui, sans-serif",
+                letterSpacing: '-0.02em'
+              }}
             >
               About
             </h2>
             <p
-              className={`max-w-3xl text-lg leading-relaxed ${
-                isDark ? "text-gray-300" : "text-slate-700"
-              }`}
+              className="max-w-3xl text-lg leading-relaxed"
+              style={{ 
+                color: isDark ? '#F8FAFF' : '#334155',
+                lineHeight: '1.7'
+              }}
             >
               KeebLab is our tribute to the mechanical keyboard community. We
               know what it's like to chase the perfect sound profile, to
@@ -269,9 +294,11 @@ export default function KeebLab() {
               keycap set.
             </p>
             <p
-              className={`mt-6 max-w-3xl leading-relaxed ${
-                isDark ? "text-gray-400" : "text-slate-600"
-              }`}
+              className="mt-6 max-w-3xl leading-relaxed"
+              style={{ 
+                color: 'var(--color-muted)',
+                lineHeight: '1.7'
+              }}
             >
               We felt the existing tools didn't respect the hardware we love.
               So, we engineered KeebLab to be the ultimate companion to your
@@ -285,37 +312,39 @@ export default function KeebLab() {
 
       {/* FOOTER */}
       <footer
-        className={`transition-colors duration-500 ${
-          isDark
-            ? "bg-gradient-to-r from-black/80 via-white/2 to-black/70 text-white"
-            : "bg-gradient-to-r from-primary-50 to-cyan-50 text-[#0F172A]"
-        }`}
+        className="transition-colors duration-500"
+        style={{
+          background: isDark
+            ? 'linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.7))'
+            : 'linear-gradient(to right, #EEF2FF, #ECFEFF)',
+          color: 'var(--color-text)'
+        }}
       >
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
             <div className="md:col-span-2">
               <div className="flex items-center gap-4">
                 <h3
-                  className={`text-2xl md:text-3xl font-bold ${
-                    isDark ? "text-white drop-shadow-sm" : "text-[#0F172A]"
-                  }`}
+                  className="text-2xl md:text-3xl font-bold"
+                  style={{ 
+                    color: 'var(--color-text)',
+                    fontFamily: "'Inter', system-ui, sans-serif"
+                  }}
                 >
                   KeebLab
                 </h3>
 
                 <span
-                  className={`hidden sm:inline text-sm ${
-                    isDark ? "text-gray-300" : "text-slate-600"
-                  }`}
+                  className="hidden sm:inline text-sm"
+                  style={{ color: 'var(--color-muted)' }}
                 >
                   High-fidelity typing practice for analog enthusiasts.
                 </span>
               </div>
 
               <p
-                className={`mt-4 text-sm ${
-                  isDark ? "text-gray-300" : "text-slate-700"
-                }`}
+                className="mt-4 text-sm"
+                style={{ color: 'var(--color-muted)' }}
               >
                 Built with care by{" "}
                 <a
@@ -328,12 +357,24 @@ export default function KeebLab() {
               </p>
 
               <div className="mt-6 flex flex-wrap items-center gap-3">
-                <a href="#" className="btn btn-primary px-5 py-3">
+                <a 
+                  href="#" 
+                  className="inline-flex items-center gap-2 rounded-xl px-5 py-3 font-semibold"
+                  style={{
+                    backgroundColor: '#3b6ef6',
+                    color: 'white'
+                  }}
+                >
                   Get Started
                 </a>
                 <a
                   href="https://github.com/abdullah-par/keeblab"
-                  className="btn btn-ghost px-4 py-3 inline-flex items-center gap-2"
+                  className="inline-flex items-center gap-2 rounded-xl px-4 py-3 font-semibold transition-all"
+                  style={{
+                    backgroundColor: 'transparent',
+                    border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(15, 23, 42, 0.06)'}`,
+                    color: 'var(--color-text)'
+                  }}
                 >
                   <Github size={16} /> Contribute
                 </a>
@@ -345,27 +386,34 @@ export default function KeebLab() {
                 <a
                   href="https://github.com/abdullah-par/keeblab"
                   aria-label="GitHub"
-                  className={`social-btn ${
-                    isDark ? "bg-white/3 text-white" : "bg-white text-[#0F172A]"
-                  }`}
+                  className="inline-flex items-center justify-center rounded-full p-3 transition-all hover:scale-105"
+                  style={{
+                    backgroundColor: isDark ? 'rgba(255, 255, 255, 0.03)' : '#FFFFFF',
+                    color: 'var(--color-text)',
+                    boxShadow: '0 6px 20px rgba(16, 24, 40, 0.06)',
+                    border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(15, 23, 42, 0.04)'}`
+                  }}
                 >
                   <Github size={18} />
                 </a>
                 <a
                   href="https://www.linkedin.com/in/abdullah-parvez-565693246/"
                   aria-label="LinkedIn"
-                  className={`social-btn ${
-                    isDark ? "bg-white/3 text-white" : "bg-white text-[#0F172A]"
-                  }`}
+                  className="inline-flex items-center justify-center rounded-full p-3 transition-all hover:scale-105"
+                  style={{
+                    backgroundColor: isDark ? 'rgba(255, 255, 255, 0.03)' : '#FFFFFF',
+                    color: 'var(--color-text)',
+                    boxShadow: '0 6px 20px rgba(16, 24, 40, 0.06)',
+                    border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(15, 23, 42, 0.04)'}`
+                  }}
                 >
                   <Linkedin size={18} />
                 </a>
               </div>
 
               <p
-                className={`text-xs ${
-                  isDark ? "text-gray-400" : "text-slate-500"
-                }`}
+                className="text-xs"
+                style={{ color: 'var(--color-muted)' }}
               >
                 © {new Date().getFullYear()} KeebLab — Crafted with keyboards in
                 mind.
