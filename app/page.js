@@ -277,8 +277,7 @@ export default function KeebLab() {
               animation: "fadeInUp 1s ease-out 0.6s both"
             }}
           >
-            KeebLab blends mechanical keyboard obsession with precision typing
-            practice — built for speed, accuracy, and pure satisfaction.
+           KeebLab is a focused typing practice platform designed to improve accuracy, speed, and consistency — through deliberate training, not distractions.
           </p>
           
           <div 
@@ -333,10 +332,11 @@ export default function KeebLab() {
                 isDark ? "text-gray-300" : "text-slate-700"
               }`}
             >
-              KeebLab is our tribute to the mechanical keyboard community. We
-              know what it's like to chase the perfect sound profile, to
-              hand-lube a hundred switches, and to seek out that one elusive
-              keycap set.
+              KeebLab is a typing practice platform built for people who care about how they type — not just how fast.
+
+We believe typing is a skill shaped by rhythm, precision, and repetition. That’s why KeebLab focuses on deliberate practice, meaningful feedback, and a distraction-free environment that helps you improve naturally over time.
+
+Instead of chasing numbers, KeebLab helps you build control, consistency, and confidence. Every session is designed to sharpen your accuracy, smooth your flow, and make typing feel effortless.
             </p>
             <p
               className={`mt-6 max-w-3xl leading-relaxed ${
