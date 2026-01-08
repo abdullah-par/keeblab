@@ -116,7 +116,7 @@ export default function KeebLab() {
             aria-label="KeebLab Home"
             className={`inline-flex items-center px-4 py-2 rounded-full font-extrabold text-lg md:text-xl tracking-tight focus:outline-none focus-visible:ring-2 transition shadow-sm hover:shadow-md ${
               isDark
-                ? "bg-white/10 text-white hover:bg-white/16"
+                ? "bg-white/10 text-white hover:bg-white/16 hover:text-blue-400"
                 : "bg-blue-50 text-blue-600 hover:bg-blue-100"
             }`}
           >
