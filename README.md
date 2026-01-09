@@ -74,8 +74,8 @@ Special thanks to **Abdul Samad** for contributing to this project.
 ---
 
 ## 📄 License
+This project is currently not licensed for reuse or distribution.
 
-This project is open-source and available under the **MIT License**.
 
 ---
 
