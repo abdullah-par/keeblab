@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# KeebLab
 
-## Getting Started
+KeebLab is a focused typing practice platform designed to help users improve **accuracy, consistency, and control** through deliberate practice and a distraction-free experience. Instead of encouraging users to chase raw typing speed, KeebLab emphasizes building strong typing fundamentals that lead to long-term improvement.
 
-First, run the development server:
+---
+
+## ✨ Features
+
+* 🎯 **Deliberate Practice** – Practice modes designed to improve accuracy and consistency, not just speed.
+* 📊 **Meaningful Feedback** – Clear insights into typing performance to help users understand how they type.
+* 🧘 **Distraction-Free UI** – Clean, minimal interface that keeps focus on the text.
+* 📱 **Responsive Design** – Works smoothly across desktop and tablet devices.
+
+---
+
+## 🛠 Tech Stack
+
+* **Frontend:** React, Next.js
+* **Styling:** Tailwind CSS
+* **Language:** JavaScript
+* **Deployment:** Vercel
+
+---
+
+## 🚀 Getting Started
+
+Follow these steps to run KeebLab locally:
 
 ```bash
+# Clone the repository
+git clone https://github.com/abdullah-par/keeblab.git
+
+# Navigate to the project directory
+cd keeblab
+
+# Install dependencies
+npm install
+
+# Start the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000` in your browser to view the app.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🧠 Vision
 
-## Learn More
+KeebLab is built on the idea that typing is a skill developed through **rhythm, repetition, and precision**. The long-term goal is to create a training platform that rewards consistency and control while remaining calm and enjoyable to use.
 
-To learn more about Next.js, take a look at the following resources:
+Planned features include:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+* Competitive modes and challenges
+* Friend leaderboards
+* Advanced performance analytics
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🤝 Contributing
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Contributions are welcome! If you’d like to improve KeebLab:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Fork the repository
+2. Create a new branch
+3. Make your changes
+4. Open a pull request
+
+---
+
+## 🙌 Acknowledgements
+
+Special thanks to **Abdul Samad** for contributing to this project.
+
+---
+
+## 📄 License
+This project is currently not licensed for reuse or distribution.
+
+
+---
+
+## 🔗 Live Demo
+
+Check out the live version here:
+👉 [https://keeblabio.vercel.app/](https://keeblabio.vercel.app/)
