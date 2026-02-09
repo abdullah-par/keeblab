@@ -1,9 +1,336 @@
 "use client"
 
-import React, { useEffect, useState } from "react";
-import { Github, Linkedin, Moon, Sun, ArrowRight, Menu, X, Brain, Code, Users, Zap, Award, TrendingUp, GraduationCap, Command, CornerDownLeft, Terminal, Activity } from "lucide-react";
+import React, { useEffect, useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Github, Linkedin, Moon, Sun, ArrowRight, Menu, X, Brain, Code, Users, Zap, Award, TrendingUp, GraduationCap, Command, CornerDownLeft, Terminal, Activity, RotateCcw, ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+const AITrial = ({ isDark, onClose }) => {
+  const [input, setInput] = useState("");
+  const [wpm, setWpm] = useState(0);
+  const [level, setLevel] = useState("EASY");
+  const [startTime, setStartTime] = useState(null);
+
+  const easyText = "The sun rises in the east.";
+  const hardText = "Quantum computing leverages superposition and entanglement to solve intractable problems.";
+  const currentGoal = level === "EASY" ? easyText : hardText;
+
+  useEffect(() => {
+    if (startTime) {
+      const interval = setInterval(() => {
+        const mins = (Date.now() - startTime) / 60000;
+        const words = input.length / 5;
+        const currentWpm = Math.round(words / mins);
+        setWpm(currentWpm);
+        if (currentWpm > 40 && level === "EASY") {
+          setLevel("HARD");
+          setInput("");
+          setStartTime(Date.now());
+        }
+      }, 500);
+      return () => clearInterval(interval);
+    }
+  }, [input, startTime, level]);
+
+  const handleChange = (e) => {
+    if (!startTime && e.target.value.length > 0) setStartTime(Date.now());
+    setInput(e.target.value);
+  };
+
+  return (
+    <div className="relative">
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-2">
+          <div className={`px-3 py-1 rounded-full text-xs font-bold ${level === "EASY" ? "bg-green-500/20 text-green-400" : "bg-rose-500/20 text-rose-400 animate-pulse"}`}>
+            {level} MODE
+          </div>
+          <span className="text-sm font-mono opacity-60">{wpm} WPM</span>
+        </div>
+      </div>
+
+      <div className="text-xl font-mono mb-6 leading-relaxed">
+        {currentGoal.split("").map((char, i) => (
+          <span key={i} className={i < input.length ? (input[i] === char ? (isDark ? "text-white" : "text-slate-900") : "text-rose-500") : "opacity-30"}>
+            {char}
+          </span>
+        ))}
+      </div>
+
+      <input
+        autoFocus
+        value={input}
+        onChange={handleChange}
+        placeholder="Type to see AI adapt..."
+        className="w-full bg-transparent border-b-2 border-blue-500/30 py-2 focus:border-blue-500 outline-none font-mono"
+      />
+
+      <p className="mt-4 text-xs opacity-50 italic">
+        Tip: Type faster than 40 WPM to trigger difficulty adaptation.
+      </p>
+    </div>
+  );
+};
+
+const CodingTrial = ({ isDark, onClose }) => {
+  const [input, setInput] = useState("");
+  const codeSnippet = "const KeebLab = () => { return <Practice /> };";
+
+  const getHighlighter = (char, i) => {
+    if (i >= input.length) return "opacity-30";
+    if (input[i] !== char) return "text-rose-500 bg-rose-500/10";
+
+    // Simple syntax highlighting simulation
+    if (["{", "}", "(", ")", "<", ">", "/", ";", "=", "=>"].includes(char)) return "text-yellow-400";
+    if (["const", "return"].includes(codeSnippet.slice(i, i + 6).split(" ")[0])) return "text-purple-400";
+    return isDark ? "text-blue-300" : "text-blue-600";
+  };
+
+  return (
+    <div className={`relative font-mono`}>
+      <div className="flex justify-between items-center mb-4 text-xs opacity-50 uppercase tracking-tighter">
+        <span>coding_session.js</span>
+        <div className="flex gap-2">
+          <div className="w-2 h-2 rounded-full bg-rose-500" />
+          <div className="w-2 h-2 rounded-full bg-yellow-500" />
+          <div className="w-2 h-2 rounded-full bg-green-500" />
+        </div>
+      </div>
+
+      <div className="text-lg mb-6 leading-relaxed bg-black/20 p-4 rounded-lg">
+        {codeSnippet.split("").map((char, i) => (
+          <span key={i} className={getHighlighter(char, i)}>
+            {char}
+          </span>
+        ))}
+      </div>
+
+      <input
+        autoFocus
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="Type the code..."
+        className="w-full bg-transparent border-l-2 border-blue-500 pl-4 py-1 focus:outline-none placeholder:opacity-20"
+      />
+    </div>
+  );
+};
+
+
+
+const MultiplayerTrial = ({ isDark, onClose }) => {
+  const [userPos, setUserPos] = useState(0);
+  const [bot1Pos, setBot1Pos] = useState(0);
+  const [bot2Pos, setBot2Pos] = useState(0);
+  const [isFinished, setIsFinished] = useState(false);
+  const demoText = "Racing to the finish line.";
+
+  useEffect(() => {
+    if (userPos > 0 && !isFinished) {
+      const interval = setInterval(() => {
+        setBot1Pos(prev => Math.min(prev + Math.random() * 2, 100));
+        setBot2Pos(prev => Math.min(prev + Math.random() * 1.5, 100));
+      }, 100);
+      return () => clearInterval(interval);
+    }
+  }, [userPos, isFinished]);
+
+  useEffect(() => {
+    if (userPos >= 100 || bot1Pos >= 100) setIsFinished(true);
+  }, [userPos, bot1Pos]);
+
+  const handleInput = (e) => {
+    const val = e.target.value;
+    const progress = (val.length / demoText.length) * 100;
+    setUserPos(progress);
+  };
+
+  return (
+    <div className="relative">
+      <div className="flex justify-between items-center mb-8">
+        <h4 className="font-bold flex items-center gap-2">
+          <Users size={18} className="text-cyan-400" /> Live Match
+        </h4>
+      </div>
+
+      <div className="space-y-6 mb-8 relative">
+        {[
+          { label: "You", pos: userPos, color: "bg-blue-500" },
+          { label: "Bot 1", pos: bot1Pos, color: "bg-rose-500" },
+          { label: "Bot 2", pos: bot2Pos, color: "bg-slate-500" }
+        ].map((player, i) => (
+          <div key={i} className="relative h-8 bg-black/20 rounded-full overflow-hidden border border-white/5">
+            <motion.div
+              className={`absolute top-0 left-0 h-full ${player.color} flex items-center px-3 text-[10px] font-bold uppercase`}
+              animate={{ width: `${player.pos}%` }}
+              transition={{ type: "spring", stiffness: 50 }}
+            >
+              {player.label}
+            </motion.div>
+          </div>
+        ))}
+        <div className="absolute right-0 top-0 bottom-0 w-px bg-white/20 border-r-2 border-dashed border-white/40" />
+      </div>
+
+      {!isFinished ? (
+        <div className="space-y-4">
+          <p className="text-sm font-mono opacity-60 text-center">{demoText}</p>
+          <input
+            autoFocus
+            onChange={handleInput}
+            placeholder="Type fast to win!"
+            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-cyan-500 transition-all font-mono"
+          />
+        </div>
+      ) : (
+        <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="text-center py-4">
+          <div className="text-2xl font-black text-cyan-400 mb-2">
+            {userPos >= 100 ? "🥇 YOU WON!" : "🥈 2ND PLACE"}
+          </div>
+          <button onClick={() => { setUserPos(0); setBot1Pos(0); setBot2Pos(0); setIsFinished(false); }} className="text-xs flex items-center gap-1 mx-auto opacity-50 hover:opacity-100 transition-opacity">
+            <RotateCcw size={12} /> Play Again
+          </button>
+        </motion.div>
+      )}
+    </div>
+  );
+};
+
+const KidsTrial = ({ isDark, onClose }) => {
+
+  const [input, setInput] = useState("");
+  const word = "SUN";
+  const colors = ["text-yellow-400", "text-orange-400", "text-red-400"];
+
+  return (
+    <div
+      className={`p-8 rounded-[3rem] border-4 flex flex-col items-center justify-center text-center ${isDark ? "bg-indigo-900 shadow-indigo-500/20 border-white/20" : "bg-yellow-50 shadow-yellow-500/20 border-yellow-200"}`}
+    >
+      <div className="flex gap-4 mb-8">
+        {word.split("").map((char, i) => (
+          <motion.div
+            key={i}
+            animate={input[i] === char ? { y: [0, -20, 0] } : {}}
+            className={`text-6xl md:text-8xl font-black ${input[i] === char ? "text-green-400" : (isDark ? "text-white/20" : "text-black/10")}`}
+          >
+            {char}
+          </motion.div>
+        ))}
+      </div>
+
+      <input
+        autoFocus
+        value={input}
+        onChange={(e) => setInput(e.target.value.toUpperCase())}
+        className="opacity-0 absolute"
+      />
+
+      <p className={`text-xl font-bold ${isDark ? "text-indigo-200" : "text-indigo-600"}`}>
+        {input === word ? "🌟 GREAT JOB! 🌟" : "Type the letters!"}
+      </p>
+
+      {input === word && (
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          onClick={() => setInput("")}
+          className="mt-6 px-6 py-2 rounded-full bg-white text-indigo-600 font-bold shadow-lg"
+        >
+          Next Word
+        </motion.button>
+      )}
+    </div>
+  );
+};
+
+const TrialOverlay = ({ activeTrial, isDark, onClose }) => {
+  const getTrialComponent = () => {
+    switch (activeTrial) {
+      case 'ai': return <AITrial isDark={isDark} onClose={onClose} />;
+      case 'coding': return <CodingTrial isDark={isDark} onClose={onClose} />;
+      case 'multiplayer': return <MultiplayerTrial isDark={isDark} onClose={onClose} />;
+      case 'kids': return <KidsTrial isDark={isDark} onClose={onClose} />;
+      default: return null;
+    }
+  };
+
+  const getTrialTitle = () => {
+    switch (activeTrial) {
+      case 'ai': return 'AI Adaptive Difficulty';
+      case 'coding': return 'Coding Speed Session';
+      case 'multiplayer': return 'Live Multiplayer Arena';
+      case 'kids': return 'Kids Learning World';
+      default: return '';
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6"
+    >
+      {/* Backdrop */}
+      <div
+        className={`absolute inset-0 backdrop-blur-2xl transition-colors duration-500 ${isDark ? "bg-[#0A0C10]/95" : "bg-white/80"
+          }`}
+        onClick={onClose}
+      />
+
+      {/* Glow Effects */}
+      <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] rounded-full blur-[120px] opacity-20 pointer-events-none ${isDark ? "bg-blue-500/30" : "bg-blue-400/20"
+        }`} />
+
+      {/* Dashboard Window Container */}
+      <motion.div
+        initial={{ scale: 0.9, y: 20, opacity: 0 }}
+        animate={{ scale: 1, y: 0, opacity: 1 }}
+        exit={{ scale: 0.9, y: 20, opacity: 0 }}
+        transition={{ type: "spring", damping: 25, stiffness: 200 }}
+        className={`relative w-full max-w-4xl rounded-2xl border shadow-2xl overflow-hidden ${isDark
+          ? "bg-[#0A0C10]/80 border-white/10 shadow-blue-500/10"
+          : "bg-white/90 border-blue-100 shadow-xl shadow-blue-500/5"
+          }`}
+      >
+        {/* Window Header */}
+        <div className={`px-6 py-4 border-b flex items-center justify-between ${isDark ? "border-white/5 bg-white/[0.02]" : "border-slate-100 bg-slate-50/50"
+          }`}>
+          <div className="flex gap-2">
+            <div className="w-3 h-3 rounded-full bg-rose-500/80" />
+            <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
+            <div className="w-3 h-3 rounded-full bg-green-500/80" />
+          </div>
+          <div className={`text-xs font-mono font-bold flex items-center gap-2 uppercase tracking-widest ${isDark ? "text-gray-500" : "text-slate-400"
+            }`}>
+            <Terminal size={14} /> KeebLab Trial // {getTrialTitle()}
+          </div>
+          <button
+            onClick={onClose}
+            className={`p-1.5 rounded-full transition-colors ${isDark ? "hover:bg-white/10 text-gray-400 hover:text-white" : "hover:bg-black/5 text-slate-400 hover:text-slate-900"
+              }`}
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Content Area */}
+        <div className="p-8 md:p-12">
+          {getTrialComponent()}
+        </div>
+
+        {/* Footer Info */}
+        <div className={`px-6 py-4 border-t flex items-center justify-center gap-2 text-[10px] font-mono font-medium uppercase tracking-[0.2em] ${isDark ? "border-white/5 text-gray-500" : "border-slate-100 text-slate-400"
+          }`}>
+          <Activity size={10} className="animate-pulse" /> Experimental Sandbox Mode
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
 
 export default function KeebLab() {
+
   const [theme, setTheme] = useState("dark");
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
@@ -11,6 +338,9 @@ export default function KeebLab() {
   const [displayedText, setDisplayedText] = useState("");
   const [isTyping, setIsTyping] = useState(true);
   const fullText = "const improve = (skill) => { return practice.daily(skill) + focus; };";
+  const [activeTrial, setActiveTrial] = useState(null); // 'ai', 'coding', 'multiplayer', 'kids'
+  const router = useRouter();
+  const isDark = theme === "dark";
 
   useEffect(() => {
     let currentIndex = 0;
@@ -57,8 +387,19 @@ export default function KeebLab() {
   }, [theme]);
 
   useEffect(() => {
+    if (activeTrial) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  }, [activeTrial]);
+
+  useEffect(() => {
     const onKey = (e) => {
-      if (e.key === "Escape") setMenuOpen(false);
+      if (e.key === "Escape") {
+        setMenuOpen(false);
+        setActiveTrial(null);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -83,8 +424,6 @@ export default function KeebLab() {
       sections.forEach((section) => observer.unobserve(section));
     };
   }, [showLearnMore]);
-
-  const isDark = theme === "dark";
 
   return (
     <>
@@ -241,7 +580,7 @@ export default function KeebLab() {
         >
           <div className="container mx-auto h-16 flex items-center justify-between relative px-6">
             {/* Logo */}
-            <a
+            <Link
               href="/"
               aria-label="KeebLab Home"
               className={`inline-flex items-center px-6 py-2 rounded-full font-extrabold text-lg md:text-xl tracking-tight focus:outline-none focus-visible:ring-2 transition-all duration-300 ${isDark
@@ -250,12 +589,12 @@ export default function KeebLab() {
                 }`}
             >
               KeebLab
-            </a>
+            </Link>
 
             <nav className="flex items-center gap-4">
               {/* Desktop Navigation */}
               <div className="hidden md:flex items-center gap-6">
-                <a
+                <Link
                   href="/"
                   className={`nav-link px-3 py-2 rounded-lg transition-all duration-300 hover:scale-105 ${isDark
                     ? "text-gray-300 hover:text-white hover:bg-white/5"
@@ -263,10 +602,10 @@ export default function KeebLab() {
                     }`}
                 >
                   Home
-                </a>
+                </Link>
                 <a
                   href="#features"
-                  className={`nav-link px-3 py-2 rounded-lg transition-all duration-300 hover:scale-105 ${isDark
+                  className={`nav-link px-3 py-2 rounded-lg transition-all duration-300 hover:scale-105 cursor-pointer ${isDark
                     ? "text-gray-300 hover:text-white hover:bg-white/5"
                     : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                     }`}
@@ -275,22 +614,22 @@ export default function KeebLab() {
                 </a>
                 <a
                   href="#about"
-                  className={`nav-link px-3 py-2 rounded-lg transition-all duration-300 hover:scale-105 ${isDark
+                  className={`nav-link px-3 py-2 rounded-lg transition-all duration-300 hover:scale-105 cursor-pointer ${isDark
                     ? "text-gray-300 hover:text-white hover:bg-white/5"
                     : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                     }`}
                 >
                   About
                 </a>
-                <a
-                  href="#"
-                  className={`hidden md:inline-flex items-center gap-2 rounded-full px-6 py-2 font-bold transition-all duration-300 hover:scale-105 ${isDark
+                <button
+                  onClick={() => alert('Sign up functionality coming soon!')}
+                  className={`hidden md:inline-flex items-center gap-2 rounded-full px-6 py-2 font-bold transition-all duration-300 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 cursor-pointer ${isDark
                     ? "bg-white/10 text-white hover:bg-blue-600 hover:shadow-lg hover:shadow-blue-500/20"
                     : "bg-black/5 text-slate-900 hover:bg-blue-600 hover:text-white hover:shadow-lg hover:shadow-blue-500/20"
                     }`}
                 >
                   Sign up
-                </a>
+                </button>
               </div>
 
               <div className="flex items-center gap-2">
@@ -298,7 +637,7 @@ export default function KeebLab() {
                   aria-expanded={menuOpen}
                   aria-controls="mobile-menu"
                   onClick={() => setMenuOpen(!menuOpen)}
-                  className="md:hidden p-2 rounded-md focus:outline-none focus-visible:ring-2 transition"
+                  className="md:hidden p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition"
                 >
                   {menuOpen ? <X size={20} /> : <Menu size={20} />}
                 </button>
@@ -306,7 +645,7 @@ export default function KeebLab() {
                 <button
                   aria-label="Toggle theme"
                   onClick={() => setTheme(isDark ? "light" : "dark")}
-                  className={`p-2 rounded-full bg-transparent transform transition-all duration-300 hover:scale-105 ${isDark
+                  className={`p-2 rounded-full bg-transparent transform transition-all duration-300 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${isDark
                     ? "text-yellow-400 hover:bg-white/10"
                     : "text-slate-700 hover:bg-black/5"
                     }`}
@@ -330,14 +669,14 @@ export default function KeebLab() {
             }}
           >
             <div className="px-6 py-4 flex flex-col gap-3">
-              <a
-                href="#"
+              <Link
+                href="/"
                 onClick={() => setMenuOpen(false)}
                 className={`px-4 py-2.5 rounded-lg hover:opacity-80 transition-all duration-300 ${isDark ? "text-gray-300 hover:bg-white/10" : "text-slate-600 hover:bg-slate-100"
                   }`}
               >
                 Home
-              </a>
+              </Link>
               <a
                 href="#features"
                 onClick={() => setMenuOpen(false)}
@@ -354,16 +693,18 @@ export default function KeebLab() {
               >
                 About
               </a>
-              <a
-                href="#"
-                onClick={() => setMenuOpen(false)}
-                className={`w-full text-center rounded-full px-4 py-3 font-bold transition-all duration-300 ${isDark
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  alert('Sign up functionality coming soon!');
+                }}
+                className={`w-full text-center rounded-full px-4 py-3 font-bold transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${isDark
                   ? "bg-white/10 text-white hover:bg-blue-600 hover:shadow-lg hover:shadow-blue-500/20"
                   : "bg-black/5 text-slate-900 hover:bg-blue-600 hover:text-white hover:shadow-lg hover:shadow-blue-500/20"
                   }`}
               >
                 Sign up
-              </a>
+              </button>
             </div>
           </div>
         )}
@@ -414,7 +755,7 @@ export default function KeebLab() {
             >
               🚀 AI-Powered Typing Practice
             </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold tracking-tight leading-[1.1] mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6">
               <span
                 className={`block ${isDark ? "text-slate-100" : "text-[#0F172A]"
                   }`}
@@ -455,8 +796,8 @@ export default function KeebLab() {
               }}
             >
               <button
-                onClick={() => window.location.href = '/type'}
-                className="inline-flex items-center justify-center gap-3 w-full sm:w-auto rounded-xl px-8 sm:px-10 py-3.5 sm:py-4 font-semibold text-base sm:text-lg transition-all hover:scale-105 active:scale-95 bg-blue-600 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40"
+                onClick={() => router.push('/type')}
+                className="inline-flex items-center justify-center gap-3 w-full sm:w-auto rounded-xl px-8 sm:px-10 py-3.5 sm:py-4 font-semibold text-base sm:text-lg transition-all hover:scale-105 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 bg-blue-600 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40"
                 aria-label="Start Typing"
               >
                 Start Typing <ArrowRight size={20} />
@@ -468,8 +809,8 @@ export default function KeebLab() {
                     document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
                   }, 100);
                 }}
-                className={`inline-flex items-center justify-center gap-2 w-full sm:w-auto rounded-xl px-8 py-3.5 sm:py-4 font-semibold text-base sm:text-lg transition-all hover:scale-105 active:scale-95 ${isDark
-                  ? "border border-white/20 hover:bg-white/10 hover:border-white/30"
+                className={`inline-flex items-center justify-center gap-2 w-full sm:w-auto rounded-xl px-8 py-3.5 sm:py-4 font-semibold text-base sm:text-lg transition-all hover:scale-105 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${isDark
+                  ? "border-2 border-white/20 hover:bg-white/10 hover:border-white/30"
                   : "border-2 border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400"
                   }`}
               >
@@ -544,7 +885,7 @@ export default function KeebLab() {
         {showLearnMore && (
           <section
             id="how-it-works"
-            className="py-24 md:py-32 relative overflow-hidden"
+            className="py-20 md:py-28 lg:py-32 relative overflow-hidden"
             style={{
               animation: visibleSections.has('how-it-works') ? 'fadeInUp 0.8s ease-out' : 'none',
               opacity: visibleSections.has('how-it-works') ? 1 : 0
@@ -552,11 +893,11 @@ export default function KeebLab() {
           >
             <div className="max-w-7xl mx-auto px-6">
               {/* Project Summary */}
-              <div className={`max-w-4xl mx-auto mb-20 rounded-3xl p-10 md:p-14 border ${isDark
+              <div className={`max-w-4xl mx-auto mb-16 md:mb-20 rounded-3xl p-8 md:p-12 lg:p-14 border ${isDark
                 ? "bg-gradient-to-br from-white/5 to-white/[0.02] border-blue-500/20"
                 : "bg-white border-blue-200 shadow-2xl shadow-blue-500/10"
                 }`}>
-                <h2 className={`text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight mb-6 ${isDark ? "text-white" : "text-slate-900"
+                <h2 className={`text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6 ${isDark ? "text-white" : "text-slate-900"
                   }`}>
                   What is{" "}
                   <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-400">
@@ -611,100 +952,104 @@ export default function KeebLab() {
               </div>
 
               {/* Section Title */}
-              <div className="text-center mb-16">
-                <h2 className={`text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-slate-900"
+              <div className="text-center mb-12 md:mb-16">
+                <h2 className={`text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"
                   }`}>
                   How It{" "}
                   <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-400">
                     Works
                   </span>
                 </h2>
-                <p className={`mt-4 text-lg max-w-2xl mx-auto ${isDark ? "text-gray-400" : "text-slate-600"
+                <p className={`mt-4 text-base md:text-lg max-w-2xl mx-auto leading-relaxed ${isDark ? "text-gray-300" : "text-slate-600"
                   }`}>
                   Master your typing in four simple steps
                 </p>
               </div>
 
               {/* Steps Grid */}
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {/* Step 1 */}
-                <div className={`rounded-3xl p-8 border transition-all hover:scale-[1.02] ${isDark
-                  ? "bg-gradient-to-br from-white/5 to-white/[0.02] border-blue-500/30"
-                  : "bg-white border-blue-200 shadow-xl shadow-blue-500/10"
-                  }`}>
-                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4 ${isDark
-                    ? "bg-gradient-to-br from-blue-500/20 to-cyan-500/20"
-                    : "bg-gradient-to-br from-blue-100 to-cyan-100"
+                <div className={`group relative rounded-[2.5rem] p-8 border transition-all duration-700 hover:-translate-y-2 ${isDark
+                  ? "bg-white/[0.03] border-white/10 hover:border-blue-500/50 hover:shadow-[0_20px_50px_-20px_rgba(59,130,246,0.3)] shadow-2xl"
+                  : "bg-white/80 border-blue-100 shadow-xl shadow-blue-500/5 hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-500/20"
+                  } backdrop-blur-[20px]`}>
+                  <div className={`absolute -top-6 left-8 w-16 h-16 rounded-3xl flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 ${isDark
+                    ? "bg-gradient-to-br from-blue-600 to-cyan-500 shadow-[0_0_30px_-5px_rgba(59,130,246,0.5)]"
+                    : "bg-gradient-to-br from-blue-500 to-cyan-400 shadow-[0_10px_20px_-5px_rgba(59,130,246,0.3)]"
                     }`}>
-                    <span className={`text-2xl font-black ${isDark ? "text-blue-400" : "text-blue-600"}`}>1</span>
+                    <Terminal size={28} className="text-white" />
                   </div>
-                  <h3 className={`text-xl font-bold mb-3 ${isDark ? "text-white" : "text-slate-900"
-                    }`}>
-                    Start Typing
-                  </h3>
-                  <p className={`text-sm leading-relaxed ${isDark ? "text-gray-400" : "text-slate-600"}`}>
-                    Begin with a paragraph that matches your current skill level. No pressure, just type naturally.
-                  </p>
+                  <div className="pt-8">
+                    <h3 className={`text-2xl font-black mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>
+                      Start Typing
+                    </h3>
+                    <p className={`text-base leading-relaxed ${isDark ? "text-gray-400" : "text-slate-600"}`}>
+                      Begin with a paragraph that matches your skill level. No pressure, just find your flow and let the practice begin.
+                    </p>
+                  </div>
                 </div>
 
                 {/* Step 2 */}
-                <div className={`rounded-3xl p-8 border transition-all hover:scale-[1.02] ${isDark
-                  ? "bg-gradient-to-br from-white/5 to-white/[0.02] border-purple-500/30"
-                  : "bg-white border-purple-200 shadow-xl shadow-purple-500/10"
-                  }`}>
-                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4 ${isDark
-                    ? "bg-gradient-to-br from-purple-500/20 to-pink-500/20"
-                    : "bg-gradient-to-br from-purple-100 to-pink-100"
+                <div className={`group relative rounded-[2.5rem] p-8 border transition-all duration-700 hover:-translate-y-2 animate-delay-100 ${isDark
+                  ? "bg-white/[0.03] border-white/10 hover:border-purple-500/50 hover:shadow-[0_20px_50px_-20px_rgba(168,85,247,0.3)] shadow-2xl"
+                  : "bg-white/80 border-purple-100 shadow-xl shadow-purple-500/5 hover:border-purple-400 hover:shadow-2xl hover:shadow-purple-500/20"
+                  } backdrop-blur-[20px]`}>
+                  <div className={`absolute -top-6 left-8 w-16 h-16 rounded-3xl flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:-rotate-6 ${isDark
+                    ? "bg-gradient-to-br from-purple-600 to-pink-500 shadow-[0_0_30px_-5px_rgba(168,85,247,0.5)]"
+                    : "bg-gradient-to-br from-purple-500 to-pink-400 shadow-[0_10px_20px_-5px_rgba(168,85,247,0.3)]"
                     }`}>
-                    <span className={`text-2xl font-black ${isDark ? "text-purple-400" : "text-purple-600"}`}>2</span>
+                    <Activity size={28} className="text-white" />
                   </div>
-                  <h3 className={`text-xl font-bold mb-3 ${isDark ? "text-white" : "text-slate-900"
-                    }`}>
-                    Get Feedback
-                  </h3>
-                  <p className={`text-sm leading-relaxed ${isDark ? "text-gray-400" : "text-slate-600"}`}>
-                    Receive instant, detailed metrics on speed, accuracy, and consistency after each session.
-                  </p>
+                  <div className="pt-8">
+                    <h3 className={`text-2xl font-black mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>
+                      Get Feedback
+                    </h3>
+                    <p className={`text-base leading-relaxed ${isDark ? "text-gray-400" : "text-slate-600"}`}>
+                      Receive instant, high-fidelity metrics on your speed, accuracy, and rhythmic consistency after every session.
+                    </p>
+                  </div>
                 </div>
 
                 {/* Step 3 */}
-                <div className={`rounded-3xl p-8 border transition-all hover:scale-[1.02] ${isDark
-                  ? "bg-gradient-to-br from-white/5 to-white/[0.02] border-cyan-500/30"
-                  : "bg-white border-cyan-200 shadow-xl shadow-cyan-500/10"
-                  }`}>
-                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4 ${isDark
-                    ? "bg-gradient-to-br from-cyan-500/20 to-teal-500/20"
-                    : "bg-gradient-to-br from-cyan-100 to-teal-100"
+                <div className={`group relative rounded-[2.5rem] p-8 border transition-all duration-700 hover:-translate-y-2 animate-delay-200 ${isDark
+                  ? "bg-white/[0.03] border-white/10 hover:border-blue-500/50 hover:shadow-[0_20px_50px_-20px_rgba(59,130,246,0.3)] shadow-2xl"
+                  : "bg-white/80 border-blue-100 shadow-xl shadow-blue-500/5 hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-500/20"
+                  } backdrop-blur-[20px]`}>
+                  <div className={`absolute -top-6 left-8 w-16 h-16 rounded-3xl flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 ${isDark
+                    ? "bg-gradient-to-br from-blue-600 to-cyan-500 shadow-[0_0_30px_-5px_rgba(59,130,246,0.5)]"
+                    : "bg-gradient-to-br from-blue-500 to-cyan-400 shadow-[0_10px_20px_-5px_rgba(59,130,246,0.3)]"
                     }`}>
-                    <span className={`text-2xl font-black ${isDark ? "text-cyan-400" : "text-cyan-600"}`}>3</span>
+                    <Brain size={28} className="text-white" />
                   </div>
-                  <h3 className={`text-xl font-bold mb-3 ${isDark ? "text-white" : "text-slate-900"
-                    }`}>
-                    AI Adapts
-                  </h3>
-                  <p className={`text-sm leading-relaxed ${isDark ? "text-gray-400" : "text-slate-600"}`}>
-                    Our AI analyzes your performance and adjusts difficulty to keep you challenged but not frustrated.
-                  </p>
+                  <div className="pt-8">
+                    <h3 className={`text-2xl font-black mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>
+                      AI Adapts
+                    </h3>
+                    <p className={`text-base leading-relaxed ${isDark ? "text-gray-400" : "text-slate-600"}`}>
+                      Our neural engine analyzes your performance in real-time and adjusts difficulty to keep you perfectly challenged.
+                    </p>
+                  </div>
                 </div>
 
                 {/* Step 4 */}
-                <div className={`rounded-3xl p-8 border transition-all hover:scale-[1.02] ${isDark
-                  ? "bg-gradient-to-br from-white/5 to-white/[0.02] border-green-500/30"
-                  : "bg-white border-green-200 shadow-xl shadow-green-500/10"
-                  }`}>
-                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4 ${isDark
-                    ? "bg-gradient-to-br from-green-500/20 to-emerald-500/20"
-                    : "bg-gradient-to-br from-green-100 to-emerald-100"
+                <div className={`group relative rounded-[2.5rem] p-8 border transition-all duration-700 hover:-translate-y-2 animate-delay-300 ${isDark
+                  ? "bg-white/[0.03] border-white/10 hover:border-purple-500/50 hover:shadow-[0_20px_50px_-20px_rgba(168,85,247,0.3)] shadow-2xl"
+                  : "bg-white/80 border-purple-100 shadow-xl shadow-purple-500/5 hover:border-purple-400 hover:shadow-2xl hover:shadow-purple-500/20"
+                  } backdrop-blur-[20px]`}>
+                  <div className={`absolute -top-6 left-8 w-16 h-16 rounded-3xl flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:-rotate-6 ${isDark
+                    ? "bg-gradient-to-br from-purple-600 to-pink-500 shadow-[0_0_30px_-5px_rgba(168,85,247,0.5)]"
+                    : "bg-gradient-to-br from-purple-500 to-pink-400 shadow-[0_10px_20px_-5px_rgba(168,85,247,0.3)]"
                     }`}>
-                    <span className={`text-2xl font-black ${isDark ? "text-green-400" : "text-green-600"}`}>4</span>
+                    <TrendingUp size={28} className="text-white" />
                   </div>
-                  <h3 className={`text-xl font-bold mb-3 ${isDark ? "text-white" : "text-slate-900"
-                    }`}>
-                    Track Progress
-                  </h3>
-                  <p className={`text-sm leading-relaxed ${isDark ? "text-gray-400" : "text-slate-600"}`}>
-                    Watch your skills improve over time with detailed analytics and progress visualization.
-                  </p>
+                  <div className="pt-8">
+                    <h3 className={`text-2xl font-black mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>
+                      Track Progress
+                    </h3>
+                    <p className={`text-base leading-relaxed ${isDark ? "text-gray-400" : "text-slate-600"}`}>
+                      Visualize your journey through beautiful charts and detailed history. Watch your WPM soar to new heights.
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -763,7 +1108,7 @@ export default function KeebLab() {
         {/* Features Section */}
         <section
           id="features"
-          className="py-24 md:py-32 relative overflow-hidden"
+          className="py-20 md:py-28 lg:py-32 relative overflow-hidden"
           style={{
             animation: visibleSections.has('features') ? 'fadeInUp 0.8s ease-out' : 'none',
             opacity: visibleSections.has('features') ? 1 : 0
@@ -771,90 +1116,97 @@ export default function KeebLab() {
         >
           <div className="max-w-7xl mx-auto px-6">
             {/* Section Title */}
-            <div className="text-center mb-16">
-              <h2 className={`text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-slate-900"
+            <div className="text-center mb-12 md:mb-16">
+              <h2 className={`text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"
                 }`}>
                 Powerful{" "}
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-400">
                   Typing Features
                 </span>
               </h2>
-              <p className={`mt-4 text-lg max-w-2xl mx-auto ${isDark ? "text-gray-400" : "text-slate-600"
+              <p className={`mt-4 text-base md:text-lg max-w-2xl mx-auto leading-relaxed ${isDark ? "text-gray-300" : "text-slate-600"
                 }`}>
                 Experience the next generation of typing practice with AI-powered tools and competitive features
               </p>
             </div>
 
             {/* Main Features Grid */}
-            <div className="grid lg:grid-cols-5 gap-6 mb-8">
+            <div className="grid lg:grid-cols-5 gap-6 md:gap-8 mb-8">
               {/* AI-Powered Difficulty - Large Card */}
-              <div className={`lg:col-span-3 rounded-3xl p-8 md:p-10 border-2 transition-all hover:scale-[1.02] ${isDark
+              <div className={`lg:col-span-3 rounded-3xl p-8 md:p-10 lg:p-12 border-2 transition-all hover:scale-[1.02] ${isDark
                 ? "bg-gradient-to-br from-white/5 to-white/[0.02] border-blue-500/30"
                 : "bg-white border-blue-200 shadow-xl shadow-blue-500/10"
                 }`}>
-                <div className="flex items-start gap-4 mb-6">
-                  <div className={`p-3 rounded-xl ${isDark
-                    ? "bg-gradient-to-br from-blue-500/20 to-cyan-500/20"
-                    : "bg-gradient-to-br from-blue-100 to-cyan-100"
-                    }`}>
-                    <Brain size={32} className="text-blue-400" />
-                  </div>
-                  <div>
-                    <h3 className={`text-2xl md:text-3xl font-bold mb-2 ${isDark ? "text-white" : "text-slate-900"
-                      }`}>
-                      AI-Powered Difficulty
-                    </h3>
-                    <p className={`text-base ${isDark ? "text-gray-400" : "text-slate-600"
-                      }`}>
-                      Our advanced AI system adapts to your skill level, providing increasingly challenging paragraphs as you progress
-                    </p>
-                  </div>
-                </div>
-
-                {/* Sub-features */}
-                <div className="space-y-4 mt-8">
-                  <div className="flex items-start gap-3">
-                    <Zap size={20} className={isDark ? "text-cyan-400 mt-1" : "text-blue-500 mt-1"} />
-                    <div>
-                      <h4 className={`font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
-                        Adaptive Learning
-                      </h4>
-                      <p className={`text-sm ${isDark ? "text-gray-500" : "text-slate-600"}`}>
-                        Progressive difficulty adjustment based on your accuracy and speed metrics
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <TrendingUp size={20} className={isDark ? "text-cyan-400 mt-1" : "text-blue-500 mt-1"} />
-                    <div>
-                      <h4 className={`font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
-                        Progressive Challenges
-                      </h4>
-                      <p className={`text-sm ${isDark ? "text-gray-500" : "text-slate-600"}`}>
-                        Each paragraph gets incrementally harder, pushing your limits while maintaining motivation
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <Award size={20} className={isDark ? "text-cyan-400 mt-1" : "text-blue-500 mt-1"} />
-                    <div>
-                      <h4 className={`font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
-                        Smart Recommendations
-                      </h4>
-                      <p className={`text-sm ${isDark ? "text-gray-500" : "text-slate-600"}`}>
-                        Personalized practice suggestions to target your weak areas and maximize improvement
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <button
-                  className={`mt-8 w-full py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 ${isDark
-                    ? "bg-white/10 text-white hover:bg-blue-600 shadow-lg shadow-blue-500/10"
-                    : "bg-black/5 text-slate-900 hover:bg-blue-600 hover:text-white shadow-lg shadow-blue-500/10"
-                    }`}
+                <motion.div
+                  key="static-ai"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
                 >
-                  Try Now <ArrowRight size={20} />
-                </button>
+                  <div className="flex items-start gap-4 mb-6">
+                    <div className={`p-3 rounded-xl ${isDark
+                      ? "bg-gradient-to-br from-blue-500/20 to-cyan-500/20"
+                      : "bg-gradient-to-br from-blue-100 to-cyan-100"
+                      }`}>
+                      <Brain size={32} className="text-blue-400" />
+                    </div>
+                    <div>
+                      <h3 className={`text-2xl md:text-3xl font-bold mb-2 ${isDark ? "text-white" : "text-slate-900"
+                        }`}>
+                        AI-Powered Difficulty
+                      </h3>
+                      <p className={`text-base leading-relaxed ${isDark ? "text-gray-300" : "text-slate-600"
+                        }`}>
+                        Our advanced AI system adapts to your skill level, providing increasingly challenging paragraphs as you progress
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Sub-features */}
+                  <div className="space-y-4 mt-8">
+                    <div className="flex items-start gap-3">
+                      <Zap size={20} className={isDark ? "text-cyan-400 mt-1" : "text-blue-500 mt-1"} />
+                      <div>
+                        <h4 className={`font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
+                          Adaptive Learning
+                        </h4>
+                        <p className={`text-sm leading-relaxed ${isDark ? "text-gray-400" : "text-slate-600"}`}>
+                          Progressive difficulty adjustment based on your accuracy and speed metrics
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <TrendingUp size={20} className={isDark ? "text-cyan-400 mt-1" : "text-blue-500 mt-1"} />
+                      <div>
+                        <h4 className={`font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
+                          Progressive Challenges
+                        </h4>
+                        <p className={`text-sm leading-relaxed ${isDark ? "text-gray-400" : "text-slate-600"}`}>
+                          Each paragraph gets incrementally harder, pushing your limits while maintaining motivation
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Award size={20} className={isDark ? "text-cyan-400 mt-1" : "text-blue-500 mt-1"} />
+                      <div>
+                        <h4 className={`font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
+                          Smart Recommendations
+                        </h4>
+                        <p className={`text-sm leading-relaxed ${isDark ? "text-gray-400" : "text-slate-600"}`}>
+                          Personalized practice suggestions to target your weak areas and maximize improvement
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setActiveTrial('ai')}
+                    className={`mt-8 w-full py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${isDark
+                      ? "bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/40"
+                      : "bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/40"
+                      }`}
+                  >
+                    Try AI Trial <Zap size={20} />
+                  </button>
+                </motion.div>
               </div>
 
               {/* Stats Panel */}
@@ -923,140 +1275,143 @@ export default function KeebLab() {
             </div>
 
             {/* Additional Features Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Coding Speed */}
-              <div className={`rounded-3xl p-8 border transition-all hover:scale-[1.02] ${isDark
-                ? "bg-white/5 border-white/10 hover:border-blue-500/30"
-                : "bg-white border-blue-100 shadow-lg hover:shadow-xl hover:border-blue-300"
-                }`}>
-                <div className={`inline-flex p-3 rounded-xl mb-4 ${isDark
-                  ? "bg-gradient-to-br from-blue-500/20 to-purple-500/20"
-                  : "bg-gradient-to-br from-blue-100 to-purple-100"
-                  }`}>
-                  <Code size={28} className="text-blue-400" />
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+              {/* Coding Excellence */}
+              <div className={`group relative rounded-[2.5rem] p-8 md:p-10 lg:p-12 border transition-all duration-700 hover:-translate-y-2 flex flex-col h-full overflow-hidden ${isDark
+                ? "bg-white/[0.03] border-white/10 hover:border-blue-500/50 shadow-2xl"
+                : "bg-white/80 border-blue-100 shadow-xl shadow-blue-500/5 hover:border-blue-400 hover:shadow-2xl"
+                } backdrop-blur-[20px]`}>
+                {/* Accent Glow */}
+                <div className={`absolute -top-24 -right-24 w-48 h-48 rounded-full blur-[80px] opacity-20 pointer-events-none transition-all duration-700 group-hover:opacity-40 group-hover:scale-150 ${isDark ? "bg-blue-500" : "bg-blue-400"}`} />
+
+                <div className="relative z-10 flex flex-col h-full">
+                  <div className={`inline-flex w-20 h-20 rounded-3xl mb-8 items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 ${isDark
+                    ? "bg-gradient-to-br from-blue-600 to-purple-600 shadow-[0_15px_30px_-10px_rgba(59,130,246,0.5)]"
+                    : "bg-gradient-to-br from-blue-500 to-purple-500 shadow-[0_10px_20px_-5px_rgba(59,130,246,0.3)]"
+                    }`}>
+                    <Code size={36} className="text-white" />
+                  </div>
+                  <h3 className={`text-2xl md:text-3xl font-bold mb-4 tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+                    Coding Excellence
+                  </h3>
+                  <p className={`text-base md:text-lg leading-relaxed mb-8 ${isDark ? "text-gray-300" : "text-slate-600"}`}>
+                    Master the syntax. Practice with real-world snippets from JavaScript to Python, designed for engineering peak performance.
+                  </p>
+                  <ul className="space-y-4 mb-10">
+                    {[
+                      { icon: <Zap size={16} />, text: 'Multi-language syntax support', color: 'text-blue-400' },
+                      { icon: <Activity size={16} />, text: 'Production-ready code snippets', color: 'text-purple-400' }
+                    ].map((item, i) => (
+                      <li key={i} className="flex items-center gap-4 group/item">
+                        <div className={`p-2 rounded-lg transition-colors ${isDark ? "bg-white/5 " + item.color : "bg-blue-50 " + item.color}`}>
+                          {item.icon}
+                        </div>
+                        <span className={`text-sm font-medium ${isDark ? "text-gray-300" : "text-slate-600"}`}>{item.text}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => router.push('/coding')}
+                    className={`mt-auto w-full py-4 rounded-2xl font-black text-lg transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${isDark
+                      ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-[0_10px_20px_-5px_rgba(59,130,246,0.4)] hover:shadow-[0_15px_30px_-10px_rgba(59,130,246,0.6)]"
+                      : "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-[0_10px_20px_-5px_rgba(59,130,246,0.3)] hover:shadow-[0_15px_30px_-10px_rgba(59,130,246,0.4)]"
+                      }`}
+                  >
+                    Launch Training <ArrowRight size={20} />
+                  </button>
                 </div>
-                <h3 className={`text-2xl font-bold mb-3 ${isDark ? "text-white" : "text-slate-900"
-                  }`}>
-                  Coding Speed Improvement
-                </h3>
-                <p className={`${isDark ? "text-gray-400" : "text-slate-600"}`}>
-                  Practice with real code fragments and programming syntax. Master typing efficiency for any programming language, from JavaScript to Python.
-                </p>
-                <ul className={`mt-4 space-y-2 text-sm ${isDark ? "text-gray-500" : "text-slate-600"}`}>
-                  <li className="flex items-center gap-2">
-                    <span className={`w-1.5 h-1.5 rounded-full ${isDark ? "bg-cyan-400" : "bg-blue-500"
-                      }`} />
-                    Multi-language syntax highlighting
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className={`w-1.5 h-1.5 rounded-full ${isDark ? "bg-cyan-400" : "bg-blue-500"
-                      }`} />
-                    Real-world code snippets
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className={`w-1.5 h-1.5 rounded-full ${isDark ? "bg-cyan-400" : "bg-blue-500"
-                      }`} />
-                    Symbol and bracket practice
-                  </li>
-                </ul>
-                <button
-                  className={`mt-6 w-full py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${isDark
-                    ? "bg-white/10 text-white hover:bg-blue-600 shadow-lg shadow-blue-500/10"
-                    : "bg-black/5 text-slate-900 hover:bg-blue-600 hover:text-white shadow-lg shadow-blue-500/10"
-                    }`}
-                >
-                  Try Now <ArrowRight size={18} />
-                </button>
               </div>
 
-              {/* Multiplayer */}
-              <div className={`rounded-3xl p-8 border transition-all hover:scale-[1.02] ${isDark
-                ? "bg-white/5 border-white/10 hover:border-blue-500/30"
-                : "bg-white border-blue-100 shadow-lg hover:shadow-xl hover:border-blue-300"
-                }`}>
-                <div className={`inline-flex p-3 rounded-xl mb-4 ${isDark
-                  ? "bg-gradient-to-br from-cyan-500/20 to-blue-500/20"
-                  : "bg-gradient-to-br from-cyan-100 to-blue-100"
-                  }`}>
-                  <Users size={28} className="text-cyan-400" />
+              {/* Global Arena */}
+              <div className={`group relative rounded-[2.5rem] p-8 md:p-10 lg:p-12 border transition-all duration-700 hover:-translate-y-2 flex flex-col h-full overflow-hidden ${isDark
+                ? "bg-white/[0.03] border-white/10 hover:border-cyan-500/50 shadow-2xl"
+                : "bg-white/80 border-cyan-100 shadow-xl shadow-cyan-500/5 hover:border-cyan-400 hover:shadow-2xl"
+                } backdrop-blur-[20px]`}>
+                {/* Accent Glow */}
+                <div className={`absolute -top-24 -right-24 w-48 h-48 rounded-full blur-[80px] opacity-20 pointer-events-none transition-all duration-700 group-hover:opacity-40 group-hover:scale-150 ${isDark ? "bg-cyan-500" : "bg-cyan-400"}`} />
+
+                <div className="relative z-10 flex flex-col h-full">
+                  <div className={`inline-flex w-20 h-20 rounded-3xl mb-8 items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:-rotate-6 ${isDark
+                    ? "bg-gradient-to-br from-cyan-500 to-blue-600 shadow-[0_15px_30px_-10px_rgba(6,182,212,0.5)]"
+                    : "bg-gradient-to-br from-cyan-400 to-blue-500 shadow-[0_10px_20px_-5px_rgba(6,182,212,0.3)]"
+                    }`}>
+                    <Users size={36} className="text-white" />
+                  </div>
+                  <h3 className={`text-2xl md:text-3xl font-bold mb-4 tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+                    Global Arena
+                  </h3>
+                  <p className={`text-base md:text-lg leading-relaxed mb-8 ${isDark ? "text-gray-300" : "text-slate-600"}`}>
+                    Battle typists worldwide in pulse-pounding races. Speed is your power; rhythmic precision is your greatest shield.
+                  </p>
+                  <ul className="space-y-4 mb-10">
+                    {[
+                      { icon: <Activity size={16} />, text: 'Real-time competitive races', color: 'text-cyan-400' },
+                      { icon: <Award size={16} />, text: 'Global ranking & leaderboard', color: 'text-blue-400' }
+                    ].map((item, i) => (
+                      <li key={i} className="flex items-center gap-4 group/item">
+                        <div className={`p-2 rounded-lg transition-colors ${isDark ? "bg-white/5 " + item.color : "bg-cyan-50 " + item.color}`}>
+                          {item.icon}
+                        </div>
+                        <span className={`text-sm font-medium ${isDark ? "text-gray-300" : "text-slate-600"}`}>{item.text}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => router.push('/multiplayer')}
+                    className={`mt-auto w-full py-4 rounded-2xl font-black text-lg transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 ${isDark
+                      ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-[0_10px_20px_-5px_rgba(6,182,212,0.4)] hover:shadow-[0_15px_30px_-10px_rgba(6,182,212,0.6)]"
+                      : "bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-[0_10px_20px_-5px_rgba(6,182,212,0.3)] hover:shadow-[0_15px_30px_-10px_rgba(6,182,212,0.4)]"
+                      }`}
+                  >
+                    Enter Arena <ArrowRight size={20} />
+                  </button>
                 </div>
-                <h3 className={`text-2xl font-bold mb-3 ${isDark ? "text-white" : "text-slate-900"
-                  }`}>
-                  Multiplayer Competition
-                </h3>
-                <p className={`${isDark ? "text-gray-400" : "text-slate-600"}`}>
-                  Challenge friends or compete with typists worldwide in real-time typing races. Climb the leaderboards and prove your skills.
-                </p>
-                <ul className={`mt-4 space-y-2 text-sm ${isDark ? "text-gray-500" : "text-slate-600"}`}>
-                  <li className="flex items-center gap-2">
-                    <span className={`w-1.5 h-1.5 rounded-full ${isDark ? "bg-cyan-400" : "bg-blue-500"
-                      }`} />
-                    Real-time multiplayer races
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className={`w-1.5 h-1.5 rounded-full ${isDark ? "bg-cyan-400" : "bg-blue-500"
-                      }`} />
-                    Global leaderboards
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className={`w-1.5 h-1.5 rounded-full ${isDark ? "bg-cyan-400" : "bg-blue-500"
-                      }`} />
-                    Private rooms for friends
-                  </li>
-                </ul>
-                <button
-                  className={`mt-6 w-full py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${isDark
-                    ? "bg-white/10 text-white hover:bg-blue-600 shadow-lg shadow-blue-500/10"
-                    : "bg-black/5 text-slate-900 hover:bg-blue-600 hover:text-white shadow-lg shadow-blue-500/10"
-                    }`}
-                >
-                  Try Now <ArrowRight size={18} />
-                </button>
               </div>
 
-              {/* Kids Learning */}
-              <div className={`rounded-3xl p-8 border transition-all hover:scale-[1.02] ${isDark
-                ? "bg-white/5 border-white/10 hover:border-blue-500/30"
-                : "bg-white border-blue-100 shadow-lg hover:shadow-xl hover:border-blue-300"
-                }`}>
-                <div className={`inline-flex p-3 rounded-xl mb-4 ${isDark
-                  ? "bg-gradient-to-br from-green-500/20 to-emerald-500/20"
-                  : "bg-gradient-to-br from-green-100 to-emerald-100"
-                  }`}>
-                  <GraduationCap size={28} className="text-green-400" />
+              {/* Learning World */}
+              <div className={`group relative rounded-[2.5rem] p-8 md:p-10 lg:p-12 border transition-all duration-700 hover:-translate-y-2 flex flex-col h-full overflow-hidden ${isDark
+                ? "bg-white/[0.03] border-white/10 hover:border-blue-500/50 shadow-2xl"
+                : "bg-white/80 border-blue-100 shadow-xl shadow-blue-500/5 hover:border-blue-400 hover:shadow-2xl"
+                } backdrop-blur-[20px]`}>
+                {/* Accent Glow */}
+                <div className={`absolute -top-24 -right-24 w-48 h-48 rounded-full blur-[80px] opacity-20 pointer-events-none transition-all duration-700 group-hover:opacity-40 group-hover:scale-150 ${isDark ? "bg-blue-500" : "bg-blue-400"}`} />
+
+                <div className="relative z-10 flex flex-col h-full">
+                  <div className={`inline-flex w-20 h-20 rounded-3xl mb-8 items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 ${isDark
+                    ? "bg-gradient-to-br from-blue-600 to-cyan-600 shadow-[0_15px_30px_-10px_rgba(59,130,246,0.5)]"
+                    : "bg-gradient-to-br from-blue-500 to-cyan-500 shadow-[0_10px_20px_-5px_rgba(59,130,246,0.3)]"
+                    }`}>
+                    <GraduationCap size={36} className="text-white" />
+                  </div>
+                  <h3 className={`text-2xl md:text-3xl font-bold mb-4 tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+                    Learning World
+                  </h3>
+                  <p className={`text-base md:text-lg leading-relaxed mb-8 ${isDark ? "text-gray-300" : "text-slate-600"}`}>
+                    A safe, playful sandbox for explorers. Mastering alphabets, spelling, and keyboards has never felt this magical.
+                  </p>
+                  <ul className="space-y-4 mb-10">
+                    {[
+                      { icon: <Brain size={16} />, text: 'Kid-friendly adaptive UI', color: 'text-blue-400' },
+                      { icon: <Zap size={16} />, text: 'Sparkling achievement system', color: 'text-cyan-400' }
+                    ].map((item, i) => (
+                      <li key={i} className="flex items-center gap-4 group/item">
+                        <div className={`p-2 rounded-lg transition-colors ${isDark ? "bg-white/5 " + item.color : "bg-blue-50 " + item.color}`}>
+                          {item.icon}
+                        </div>
+                        <span className={`text-sm font-medium ${isDark ? "text-gray-300" : "text-slate-600"}`}>{item.text}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => router.push('/kids')}
+                    className={`mt-auto w-full py-4 rounded-2xl font-black text-lg transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${isDark
+                      ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_10px_20px_-5px_rgba(59,130,246,0.4)] hover:shadow-[0_15px_30px_-10px_rgba(59,130,246,0.6)]"
+                      : "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-[0_10px_20px_-5px_rgba(59,130,246,0.3)] hover:shadow-[0_15px_30px_-10px_rgba(59,130,246,0.4)]"
+                      }`}
+                  >
+                    Start Adventure <ArrowRight size={20} />
+                  </button>
                 </div>
-                <h3 className={`text-2xl font-bold mb-3 ${isDark ? "text-white" : "text-slate-900"
-                  }`}>
-                  Kids Learning Mode
-                </h3>
-                <p className={`${isDark ? "text-gray-400" : "text-slate-600"}`}>
-                  A fun and engaging environment designed for children to learn alphabets, practice spelling, and build foundational typing skills.
-                </p>
-                <ul className={`mt-4 space-y-2 text-sm ${isDark ? "text-gray-500" : "text-slate-600"}`}>
-                  <li className="flex items-center gap-2">
-                    <span className={`w-1.5 h-1.5 rounded-full ${isDark ? "bg-cyan-400" : "bg-blue-500"
-                      }`} />
-                    Alphabet recognition practice
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className={`w-1.5 h-1.5 rounded-full ${isDark ? "bg-cyan-400" : "bg-blue-500"
-                      }`} />
-                    Interactive spelling exercises
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className={`w-1.5 h-1.5 rounded-full ${isDark ? "bg-cyan-400" : "bg-blue-500"
-                      }`} />
-                    Age-appropriate content
-                  </li>
-                </ul>
-                <button
-                  className={`mt-6 w-full py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${isDark
-                    ? "bg-white/10 text-white hover:bg-blue-600 shadow-lg shadow-blue-500/10"
-                    : "bg-black/5 text-slate-900 hover:bg-blue-600 hover:text-white shadow-lg shadow-blue-500/10"
-                    }`}
-                >
-                  Try Now <ArrowRight size={18} />
-                </button>
               </div>
             </div>
           </div>
@@ -1064,7 +1419,7 @@ export default function KeebLab() {
 
         <section
           id="about"
-          className="pb-24 md:pb-32"
+          className="pb-20 md:pb-28 lg:pb-32"
           style={{
             animation: visibleSections.has('about') ? 'fadeInUp 0.8s ease-out' : 'none',
             opacity: visibleSections.has('about') ? 1 : 0
@@ -1079,7 +1434,7 @@ export default function KeebLab() {
             }}
           >
             <div
-              className={`rounded-3xl p-10 md:p-16 border backdrop-blur-xl shadow-2xl relative overflow-hidden ${isDark
+              className={`rounded-3xl p-8 md:p-12 lg:p-16 border backdrop-blur-xl shadow-2xl relative overflow-hidden ${isDark
                 ? "bg-white/5 border-white/10"
                 : "bg-white/80 border-blue-100 shadow-blue-500/10"
                 }`}
@@ -1090,7 +1445,7 @@ export default function KeebLab() {
               <div className="relative z-10 grid md:grid-cols-2 gap-12 items-center">
                 <div>
                   <h2
-                    className={`text-3xl md:text-5xl font-extrabold mb-6 tracking-tight ${isDark ? "text-white" : "text-slate-900"
+                    className={`text-3xl md:text-4xl lg:text-5xl font-bold mb-6 tracking-tight ${isDark ? "text-white" : "text-slate-900"
                       }`}
                   >
                     Master the art of <br />
@@ -1099,7 +1454,7 @@ export default function KeebLab() {
                     </span>
                   </h2>
                   <p
-                    className={`text-lg leading-relaxed mb-6 ${isDark ? "text-gray-300" : "text-slate-700"
+                    className={`text-base md:text-lg leading-relaxed mb-6 ${isDark ? "text-gray-300" : "text-slate-700"
                       }`}
                   >
                     KeebLab is the ultimate typing practice platform designed to help you type faster and more accurately. Powered by advanced AI, our content adapts to your skill level, pushing you to improve with every keystroke.
@@ -1112,19 +1467,71 @@ export default function KeebLab() {
                   </p>
                 </div>
 
-                <div className="grid gap-4">
-                  <div className={`p-6 rounded-2xl border transition-all hover:scale-[1.02] ${isDark ? "bg-black/20 border-white/10" : "bg-white border-blue-50 shadow-sm"}`}>
-                    <h3 className={`font-bold text-lg mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>🚀 AI-Powered Growth</h3>
-                    <p className={`text-sm ${isDark ? "text-gray-400" : "text-slate-600"}`}>Intelligent algorithms that customize practice content.</p>
-                  </div>
-                  <div className={`p-6 rounded-2xl border transition-all hover:scale-[1.02] ${isDark ? "bg-black/20 border-white/10" : "bg-white border-blue-50 shadow-sm"}`}>
-                    <h3 className={`font-bold text-lg mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>💻 Developer Friendly</h3>
-                    <p className={`text-sm ${isDark ? "text-gray-400" : "text-slate-600"}`}>Practice with real code syntax for multiple languages.</p>
-                  </div>
-                  <div className={`p-6 rounded-2xl border transition-all hover:scale-[1.02] ${isDark ? "bg-black/20 border-white/10" : "bg-white border-blue-50 shadow-sm"}`}>
-                    <h3 className={`font-bold text-lg mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>🏆 Competitive Edge</h3>
-                    <p className={`text-sm ${isDark ? "text-gray-400" : "text-slate-600"}`}>Challenge friends and track your global ranking.</p>
-                  </div>
+                <div className="grid gap-6">
+                  {[
+                    {
+                      id: 'ai',
+                      icon: <Brain size={20} />,
+                      title: 'AI-Powered Growth',
+                      desc: 'Intelligent algorithms that customize content to your neural patterns.',
+                      color: 'blue',
+                      borderColor: 'hover:border-blue-500/50',
+                      iconColor: 'text-blue-400'
+                    },
+                    {
+                      id: 'coding',
+                      icon: <Code size={20} />,
+                      title: 'Developer Centric',
+                      desc: 'Practice with real code syntax for maximum engineering efficiency.',
+                      color: 'purple',
+                      borderColor: 'hover:border-purple-500/50',
+                      iconColor: 'text-purple-400'
+                    },
+                    {
+                      id: 'multiplayer',
+                      icon: <TrendingUp size={20} />,
+                      title: 'Global Rankings',
+                      desc: 'Challenge friends and climb the competitive global leaderboards.',
+                      color: 'cyan',
+                      borderColor: 'hover:border-cyan-500/50',
+                      iconColor: 'text-cyan-400'
+                    }
+                  ].map((feature, idx) => (
+                    <div
+                      key={idx}
+                      className={`group p-6 rounded-[2rem] border transition-all duration-500 hover:-translate-y-1 ${isDark
+                        ? "bg-white/[0.03] border-white/10 " + feature.borderColor
+                        : "bg-white border-blue-100 shadow-sm hover:border-blue-300"
+                        } backdrop-blur-[10px]`}
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className={`p-3 rounded-xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 ${isDark
+                          ? "bg-white/5 " + feature.iconColor
+                          : "bg-blue-50 " + feature.iconColor
+                          }`}>
+                          {feature.icon}
+                        </div>
+                        <div>
+                          <h3 className={`font-black text-xl mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>
+                            {feature.title}
+                          </h3>
+                          <p className={`text-sm leading-relaxed ${isDark ? "text-gray-300" : "text-slate-600"}`}>
+                            {feature.desc}
+                          </p>
+                          <button
+                            onClick={() => {
+                              document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                              setActiveTrial(feature.id);
+                            }}
+                            className={`mt-4 text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all group/btn ${isDark ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-500"
+                              }`}
+                          >
+                            Launch Trial <ChevronRight size={14} className="transition-transform group-hover/btn:translate-x-1" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -1132,85 +1539,121 @@ export default function KeebLab() {
         </section>
 
         <footer
-          className={`transition-colors duration-500 border-t ${isDark
-            ? "bg-gradient-to-r from-black/80 via-white/2 to-black/70 text-white border-white/10"
-            : "bg-gradient-to-r from-blue-50 via-white to-cyan-50 text-[#0F172A] border-blue-100"
+          className={`transition-all duration-700 border-t relative overflow-hidden backdrop-blur-2xl ${isDark
+            ? "bg-[#0A0C10]/95 border-white/10"
+            : "bg-white/90 border-blue-100 shadow-[0_-20px_50px_-20px_rgba(59,130,246,0.1)]"
             }`}
         >
-          <div className="max-w-7xl mx-auto px-6 py-16 md:py-24">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+          {/* Dynamic Background Glows */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            <div className={`absolute -bottom-24 -left-24 w-96 h-96 rounded-full blur-[100px] opacity-10 ${isDark ? "bg-blue-600" : "bg-blue-400"}`} />
+            <div className={`absolute -top-24 -right-24 w-96 h-96 rounded-full blur-[100px] opacity-10 ${isDark ? "bg-purple-600" : "bg-purple-400"}`} />
+          </div>
+
+          <div className="max-w-7xl mx-auto px-6 py-16 md:py-20 lg:py-24 relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 md:gap-16 items-start">
               {/* Brand Column */}
-              <div className="lg:col-span-1">
-                <a href="/" className={`text-2xl font-black mb-6 inline-block ${isDark ? "text-white" : "text-slate-900"}`}>
-                  KeebLab
-                </a>
-                <p className={`text-sm leading-relaxed mb-6 ${isDark ? "text-gray-400" : "text-slate-600"}`}>
-                  High-fidelity typing practice for enthusiasts who demand precision and aesthetics.
-                </p>
+              <div className="lg:col-span-2 space-y-8">
+                <div>
+                  <Link href="/" className={`text-4xl font-black inline-block transition-all duration-500 hover:scale-105 group ${isDark ? "text-white" : "text-slate-900"}`}>
+                    KeebLab<span className="text-blue-500 transition-all duration-500 group-hover:pl-1">.</span>
+                  </Link>
+                  <p className={`mt-6 text-lg md:text-xl leading-relaxed max-w-md font-medium ${isDark ? "text-gray-300" : "text-slate-600"}`}>
+                    Elevating your typing experience through high-fidelity practice and AI-powered adaptation.
+                  </p>
+                </div>
                 <div className="flex gap-4">
-                  <a href="#" className={`p-2 rounded-full transition-colors ${isDark ? "bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900"}`}>
-                    <Github size={18} />
-                  </a>
-                  <a href="#" className={`p-2 rounded-full transition-colors ${isDark ? "bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900"}`}>
-                    <Linkedin size={18} />
+                  <a href="https://www.linkedin.com/in/abdullah-parvez-565693246/" target="_blank" rel="noopener noreferrer" className={`group p-4 rounded-[1.5rem] border transition-all duration-500 hover:-translate-y-1 ${isDark ? "bg-white/[0.03] border-white/10 hover:border-blue-500/50 hover:shadow-[0_10px_30px_-10px_rgba(59,130,246,0.5)] text-gray-400 hover:text-blue-400" : "bg-white border-blue-100 shadow-sm hover:border-blue-300 text-slate-600 hover:text-blue-600"}`}>
+                    <Linkedin size={24} className="transition-transform duration-500 group-hover:scale-110" />
                   </a>
                 </div>
               </div>
 
-              {/* Product Links */}
-              <div>
-                <h4 className={`font-bold mb-6 ${isDark ? "text-white" : "text-slate-900"}`}>Product</h4>
-                <ul className="space-y-4 text-sm">
-                  <li><a href="#" className={`transition-colors ${isDark ? "text-gray-400 hover:text-white" : "text-slate-600 hover:text-blue-600"}`}>Typing Test</a></li>
-                  <li><a href="#features" className={`transition-colors ${isDark ? "text-gray-400 hover:text-white" : "text-slate-600 hover:text-blue-600"}`}>Features</a></li>
-                  <li><a href="#" className={`transition-colors ${isDark ? "text-gray-400 hover:text-white" : "text-slate-600 hover:text-blue-600"}`}>Multiplayer</a></li>
-                  <li><a href="#" className={`transition-colors ${isDark ? "text-gray-400 hover:text-white" : "text-slate-600 hover:text-blue-600"}`}>For Schools</a></li>
-                </ul>
-              </div>
-
-              {/* Resources Links */}
-              <div>
-                <h4 className={`font-bold mb-6 ${isDark ? "text-white" : "text-slate-900"}`}>Resources</h4>
-                <ul className="space-y-4 text-sm">
-                  <li><a href="#" className={`transition-colors ${isDark ? "text-gray-400 hover:text-white" : "text-slate-600 hover:text-blue-600"}`}>Blog</a></li>
-                  <li><a href="#" className={`transition-colors ${isDark ? "text-gray-400 hover:text-white" : "text-slate-600 hover:text-blue-600"}`}>Help Center</a></li>
-                  <li><a href="#" className={`transition-colors ${isDark ? "text-gray-400 hover:text-white" : "text-slate-600 hover:text-blue-600"}`}>Terms of Service</a></li>
-                  <li><a href="#" className={`transition-colors ${isDark ? "text-gray-400 hover:text-white" : "text-slate-600 hover:text-blue-600"}`}>Privacy Policy</a></li>
-                </ul>
-              </div>
-
-              {/* Newsletter */}
-              <div>
-                <h4 className={`font-bold mb-6 ${isDark ? "text-white" : "text-slate-900"}`}>Stay Updated</h4>
-                <p className={`text-sm mb-4 ${isDark ? "text-gray-400" : "text-slate-600"}`}>
-                  Get the latest typing tips and feature updates directly to your inbox.
-                </p>
-                <div className="flex gap-2">
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    className={`flex-1 px-4 py-2.5 rounded-lg text-sm border focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${isDark
-                      ? "bg-white/5 border-white/10 text-white placeholder-gray-500"
-                      : "bg-white border-slate-200 text-slate-900 placeholder-slate-400"}`}
-                  />
-                  <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
-                    <ArrowRight size={18} />
-                  </button>
+              {/* Navigation */}
+              <div className="grid grid-cols-2 gap-12 lg:col-span-2">
+                <div>
+                  <h4 className={`text-xs font-black uppercase tracking-[0.2em] mb-10 ${isDark ? "text-slate-500" : "text-slate-400"}`}>Navigation</h4>
+                  <ul className="space-y-5">
+                    {[
+                      { name: 'Typing Test', href: '/type' },
+                      { name: 'How It Works', href: '#how-it-works' },
+                      { name: 'Features', href: '#features' },
+                      { name: 'About', href: '#about' }
+                    ].map((link) => (
+                      <li key={link.name}>
+                        <a href={link.href} className={`text-lg font-bold transition-all duration-300 border-b-2 border-transparent hover:border-blue-500/50 pb-1 ${isDark ? "text-gray-300 hover:text-white" : "text-slate-600 hover:text-slate-900"}`}>
+                          {link.name}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h4 className={`text-xs font-black uppercase tracking-[0.2em] mb-10 ${isDark ? "text-slate-500" : "text-slate-400"}`}>Support</h4>
+                  <ul className="space-y-5">
+                    {[
+                      { name: 'Privacy Policy', href: '#' },
+                      { name: 'Terms of Service', href: '#' }
+                    ].map((link) => (
+                      <li key={link.name}>
+                        <a href={link.href} className={`text-lg font-bold transition-all duration-300 border-b-2 border-transparent hover:border-slate-500/50 pb-1 ${isDark ? "text-gray-300 hover:text-white" : "text-slate-600 hover:text-slate-900"}`}>
+                          {link.name}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             </div>
 
-            <div className={`pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4 ${isDark ? "border-white/10" : "border-slate-200"}`}>
-              <p className={`text-sm ${isDark ? "text-gray-500" : "text-slate-500"}`}>
-                © {new Date().getFullYear()} KeebLab. All rights reserved.
-              </p>
-              <p className={`text-sm flex items-center gap-1 ${isDark ? "text-gray-500" : "text-slate-500"}`}>
-                Built by <a href="https://www.linkedin.com/in/abdullah-parvez-565693246/" className={`hover:underline ${isDark ? "text-gray-400" : "text-slate-700"}`}>Abdullah Parvez</a>
-              </p>
+            <div className={`mt-24 pt-12 border-t flex flex-col lg:flex-row justify-between items-center gap-10 ${isDark ? "border-white/10" : "border-slate-200"}`}>
+              <div className="flex flex-col gap-2 items-center lg:items-start text-center lg:text-left">
+                <p className={`text-sm font-medium tracking-tight ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+                  © {new Date().getFullYear()} KeebLab. Precision practice for the modern enthusiast.
+                </p>
+                <div className={`flex items-center gap-3 p-1 pl-4 pr-1 rounded-full border transition-all duration-500 hover:scale-105 ${isDark
+                  ? "bg-white/[0.03] border-white/5 hover:border-blue-500/30"
+                  : "bg-slate-50 border-slate-200 hover:border-blue-300 shadow-sm"}`}>
+                  <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${isDark ? "text-slate-600" : "text-slate-400"}`}>Creator</span>
+                  <a
+                    href="https://www.linkedin.com/in/abdullah-parvez-565693246/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`px-4 py-1.5 rounded-full text-sm font-black transition-all duration-300 ${isDark
+                      ? "bg-blue-600 text-white hover:bg-blue-500 shadow-[0_5px_15px_-5px_rgba(37,99,235,0.4)]"
+                      : "bg-blue-600 text-white hover:bg-blue-700 shadow-md"}`}
+                  >
+                    Abdullah Parvez
+                  </a>
+                </div>
+              </div>
+
+              <div className={`group flex items-center gap-3 px-5 py-2.5 rounded-full border transition-all duration-500 ${isDark
+                ? "bg-green-500/5 border-green-500/20 hover:border-green-500/40"
+                : "bg-green-50 border-green-100 hover:bg-green-100 shadow-sm"}`}>
+                <div className="relative">
+                  <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
+                  <div className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-green-500 animate-ping opacity-75" />
+                </div>
+                <span className={`text-[11px] font-black uppercase tracking-[0.15em] ${isDark ? "text-green-500/90" : "text-green-600"}`}>
+                  System Live
+                </span>
+                <div className={`w-px h-3 mx-1 ${isDark ? "bg-green-500/20" : "bg-green-500/20"}`} />
+                <ChevronRight size={14} className={`transition-transform duration-500 group-hover:translate-x-1 ${isDark ? "text-green-500/50" : "text-green-500/50"}`} />
+              </div>
             </div>
           </div>
         </footer>
-      </div >
+      </div>
+      <AnimatePresence>
+        {activeTrial && (
+          <TrialOverlay
+            activeTrial={activeTrial}
+            isDark={isDark}
+            onClose={() => setActiveTrial(null)}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 }
